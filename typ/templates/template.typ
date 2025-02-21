@@ -19,7 +19,12 @@
 
 /// Converts a source path to a news link.
 #let news-link(src) = {
-  src.replace("content/", url-base).replace(".typ", ".html")
+  let href = src.replace("content/", url-base).replace(".typ", ".html")
+  if x-is-light {
+    href.replace(".html", ".light.html")
+  } else {
+    href
+  }
 }
 
 /// A font-awesome icon.
@@ -163,17 +168,45 @@
   )
 }
 
+/// Fonts.
+#let main-font-cn = ("Noto Sans CJK SC", "Source Han Serif SC")
+#let code-font-cn = ("Noto Sans CJK SC",)
+
+#let main-font = (
+  (name: "Libertinus Serif", covers: "latin-in-cjk"),
+  ..main-font-cn,
+)
+
+#let code-font = (
+  "BlexMono Nerd Font Mono",
+  // typst-book's embedded font
+  "DejaVu Sans Mono",
+  ..code-font-cn,
+)
+
 /// The base of all html templates.
 #let base-template(pre-header: none, go-back: none, description: none, content) = {
   // todo: remove it after the bug is fixed
   show raw.where(block: false): it => html.elem("code", it.text)
-
-  show math.equation: set text(fill: color.rgb(235, 235, 235, 90%))
+  // Renders the math equations with scrollable div.
+  show math.equation: set text(fill: color.rgb(235, 235, 235, 90%)) if x-is-dark
   show math.equation: div-frame.with(attrs: ("style": "display: flex; justify-content: center; overflow-x: auto;"))
-
+  /// The description of the document.
   set document(description: description) if description != none
+  /// Wraps the following content with the HTML template.
+  show: load-html-template.with(
+    "/src/template.html",
+    extra-head: {
+      /// Theme-specific CSS.
+      if x-is-dark {
+        preload-css("/assets/dark.css")
+      } else {
+        preload-css("/assets/light.css")
+      }
+    },
+  )
 
-  show: load-html-template.with("/src/template.html")
+  /// HTML code block supported by zebraw.
   show: zebraw-init.with(
     // should vary by theme
     background-color: (rgb("#292e42"), rgb("#24283b")),
@@ -187,9 +220,11 @@
     line-width: 100%,
     wrap: false,
   )
-  set raw(theme: "/assets/tokyo-night.tmTheme")
-  show raw: set text(fill: rgb("#c0caf5"))
+  set raw(theme: "/assets/tokyo-night.tmTheme") if x-is-dark
+  show raw: set text(fill: rgb("#c0caf5")) if x-is-dark
+  set text(font: main-font)
 
+  /// The HTML content.
   pre-header
   header(go-back: go-back)
   div(class: "main-body", content)

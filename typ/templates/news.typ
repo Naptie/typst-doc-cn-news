@@ -23,33 +23,47 @@
       )) <front-matter>]
   }
 
+  let locale = if region != none {
+    lang + "-" + region
+  } else if lang != none {
+    lang
+  } else {
+    "en"
+  }
+
   import "/typ/templates/template.typ": *
   base-template(
     pre-header: current-title.update(title),
-    go-back: news-link("content/index.typ"),
+    go-back: news-link("content/" + locale + "/index.typ"),
     {
       style(
         // 48rem is from tailwindcss, the medium breakpoint.
         ```css
         @media (width >= 48rem) {
           .exp {
+            width: 100%;
             display: grid;
             grid-template-columns: 50% 50%;
-            gap: 0.5em;
+            gap: 1.5em;
           }
         }
 
         @media (width < 48rem) {
           .exp {
             display: block;
+            padding-bottom: 1em;
           }
         }
 
         .frame {
-          shadow: 0 0 0.5em rgba(0, 0, 0, 0.1);
+          box-shadow: 0 0 0.5em rgba(0, 0, 0, 0.1);
           border-radius: 0.5em;
           background: #fff;
           padding: 0.5em;
+          width: fit-content;
+          max-width: 100%;
+          margin: auto;
+          object-fit: contain;
         }
         ```.text,
       )
@@ -81,7 +95,7 @@
       "div",
       (
         left,
-        html.elem("div", right, attrs: (style: "padding: 1em;")),
+        html.elem("div", right, attrs: (style: "padding-bottom: 1em;")),
       )
         .map(x => html.elem("div", x))
         .join(),
@@ -89,14 +103,19 @@
     ),
   )
 }
-#let exp(code, frame: false) = {
+
+#let exp(code, ..args, frame: false) = {
   if is-meta {
     return
   }
   _exp(
     code,
     {
-      let body = eval(code.text, mode: "markup")
+      let body = if args.pos().len() == 0 {
+        eval(code.text, mode: "markup")
+      } else {
+        args.at(0)
+      }
       if frame {
         html.elem("div", html.frame(body), attrs: (class: "frame"))
       } else {
@@ -120,16 +139,22 @@
     html.elem(
       "div",
       (
-        [曾经],
-        [现在],
-        before,
-        after,
+        context if text.lang == "zh" {
+          "曾经"
+        } else {
+          "Before"
+        },
+        context if text.lang == "zh" {
+          "现在"
+        } else {
+          "After"
+        },
+        html.elem("div", html.frame(before), attrs: (class: "frame")),
+        html.elem("div", html.frame(after), attrs: (class: "frame")),
       )
         .map(x => html.elem("div", x))
         .join(),
-      attrs: {
-        (style: "display: grid; grid-template-columns: 1fr 1fr; gap: 0.5em; ")
-      },
+      attrs: (style: "display: grid; grid-template-columns: 1fr 1fr; gap: 0.5em; text-align: center; overflow-x: auto;"),
     ),
   )
 }

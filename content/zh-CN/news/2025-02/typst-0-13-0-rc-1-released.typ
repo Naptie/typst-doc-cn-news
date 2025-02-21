@@ -102,7 +102,8 @@ Typst 0.13.0, RC 1 版本发布了. changelog 见 #link("https://staging.typst.a
 
   需要注意的是, 目前该 `ref` 的中文 `supplement` 还有待改进(如下图中的 `supplement` 仍为 page). 修复本问题可能需要对 `ref` 做更多改进, 相关 issue 有 #(2485, 5102).map(str).map(x => link("https://github.com/typst/typst/issues/" + x, "#" + x)).join([, ]).
 
-  #_exp(
+  #exp(
+    frame: true,
     ```typ
     #set page(numbering: "1")
     = 你好 <hello>
@@ -233,7 +234,8 @@ Typst 0.13.0, RC 1 版本发布了. changelog 见 #link("https://staging.typst.a
   ) <highlight>
   实现了 PDF 输出中无可见注释的文件嵌入功能.
 
-  #_exp(
+  #exp(
+    frame: true,
     ```typ
     下面的代码会向 PDF 中嵌入一些附件.
     #pdf.embed("hello.txt")
@@ -321,8 +323,8 @@ Typst 0.13.0, RC 1 版本发布了. changelog 见 #link("https://staging.typst.a
     ```typ
     // 只改变数字的字体
     #set text(font: (
-      (name: "Noto Sans Mono", covers: regex("[0-9]")),
-      "Noto Serif"
+      (name: "BlexMono Nerd Font Mono", covers: regex("[0-9]")),
+      "Libertinus Serif"
     ))
     等宽: 110088 \
     不等宽: Xyzwls
@@ -334,7 +336,7 @@ Typst 0.13.0, RC 1 版本发布了. changelog 见 #link("https://staging.typst.a
     ```typ
     // 中英文字体分别设置 (不需要手动 show 或者 re)
     #set text(font: (
-      (name: "Times New Roman", covers: "latin-in-cjk"),
+      (name: "Libertinus Serif", covers: "latin-in-cjk"),
       "Noto Sans CJK SC"
     ))
     中文字体和 Latin Font 可以分别设置.
@@ -826,8 +828,9 @@ Typst 0.13.0, RC 1 版本发布了. changelog 见 #link("https://staging.typst.a
 
   此外, 还添加了 `set document(description: str)`, 用于为 PDF 和 HTML 输出设置文档描述.
 
-  #_exp(
-    ```
+  #exp(
+    frame: true,
+    ```typ
     以下代码可以给文档设置描述
     #set document(description: "简单的 0.13.0-rc1 更新日志")
     ```,
@@ -1017,11 +1020,14 @@ Typst 0.13.0, RC 1 版本发布了. changelog 见 #link("https://staging.typst.a
     ```,
     align(left)[
       ERR:\
-      Internal error when accessing field "label" in sequence - this is a bug
+      Internal error when accessing\
+      field "label" in sequence\
+       - this is a bug
     ],
     align(left)[
       ERR:\
-      sequence does not have field "foo"
+      sequence does not have field\
+      "foo"
     ],
   )
 
@@ -1106,7 +1112,9 @@ Typst 0.13.0, RC 1 版本发布了. changelog 见 #link("https://staging.typst.a
     align(left)[ERR: \
       duplicate variant: "bar.foo"
 
-      Hint: variants with the same modifiers are identical, regardless of their order
+      Hint: variants with the same\
+      modifiers are identical, \
+      regardless of their order
     ],
   )
 
@@ -1330,7 +1338,7 @@ Typst 0.13.0, RC 1 版本发布了. changelog 见 #link("https://staging.typst.a
   之前, 为了产生嵌套的上述元素, 我们必须使用换行和缩进, 比如
   #exp(
     frame: true,
-    ```
+    ```typ
     + first main
     +
       - first sub
@@ -1341,7 +1349,7 @@ Typst 0.13.0, RC 1 版本发布了. changelog 见 #link("https://staging.typst.a
   现在不需要额外的换行了.
   #exp(
     frame: true,
-    ```
+    ```typ
     + first main
     + - first sub
       - second sub
@@ -1362,7 +1370,8 @@ Typst 0.13.0, RC 1 版本发布了. changelog 见 #link("https://staging.typst.a
   ) <highlight>
   对 `outline` 进行了多项改良, 具体包括:
   - 目录条目现在是 `block` 了, 因此可以通过 `set block(spacing)` 设置目录条目的间隔:
-    #_exp(
+    #exp(
+      frame: true,
       ```typ
       #show outline.entry.where(level: 1): set block(spacing: 1.5em)
       #outline()
@@ -1454,7 +1463,8 @@ Typst 0.13.0, RC 1 版本发布了. changelog 见 #link("https://staging.typst.a
   ) <highlight>
   支持对所有段落设置首行缩进.
 
-  #_exp(
+  #exp(
+    frame: true,
     ```typ
     #set par(first-line-indent: (amount: 2em, all: true))
     = 标题
@@ -1500,7 +1510,8 @@ Typst 0.13.0, RC 1 版本发布了. changelog 见 #link("https://staging.typst.a
   - 现在支持多线程运行插件, 这一切都是自动完成的, 用户不需要进行任何手动操作.
   - 提供了新的 `plugin.transition` API 用于执行非纯函数. 如果不使用 `transition` 调用非纯函数, 可能会导致不可预测的结果.
 
-  #_exp(
+  #exp(
+    frame: true,
     ```typ
     #import plugin("mycalc.wasm"): myadd, mymut
     #myadd(3, 5) \
@@ -1512,7 +1523,8 @@ Typst 0.13.0, RC 1 版本发布了. changelog 见 #link("https://staging.typst.a
     ],
   )
 
-  #_exp(
+  #exp(
+    frame: true,
     ```typ
     #let base = plugin("mut.wasm")
     变化前的 `base`: #base.get() \
