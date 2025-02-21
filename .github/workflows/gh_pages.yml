@@ -1,4 +1,4 @@
-name: typst-cn-news::gh_pages
+name: typst-cn-news::deploy
 
 on:
   # Runs on pushes targeting the default branch
@@ -17,15 +17,45 @@ permissions:
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
-  group: "pages"
+  group: "deploy"
   cancel-in-progress: false
 
 jobs:
-  build-gh-pages:
+  deploy-cf:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+      - name: Set Node.js 22.x
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.x
+      - name: Install packages
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Copy Static Assets
+        run: |
+          cp -r ./assets/ ./dist
+      - name: Fix links
+        run: |
+          find ./dist -type f -name '*.html' -exec sed -i 's/href="\/dist/href="/g' {} \;
+          find ./dist -type f -name '*.html' -exec sed -i 's/src="\/dist/src="/g' {} \;
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: typst-doc-cn-news
+          directory: "./dist"
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+  deploy-vercel:
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v3
@@ -40,13 +70,15 @@ jobs:
       - name: Build
         run: npm run build -- --url-base=/news/
       - name: Copy Static Assets
-        run: cp -r ./assets/ ./dist
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: "./dist"
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        run: |
+          cp -r ./assets/ ./dist
+      - name: Fix links
+        run: |
+          find ./dist -type f -name '*.html' -exec sed -i 's/href="\/assets/href="\/news\/assets/g' {} \;
+          find ./dist -type f -name '*.html' -exec sed -i 's/src="\/assets/src="\/news\/assets/g' {} \;
+          find ./dist -type f -name '*.html' -exec sed -i 's/href="\/dist/href="\/news/g' {} \;
+          find ./dist -type f -name '*.html' -exec sed -i 's/src="\/dist/src="\/news/g' {} \;
+      - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: npx vercel --prod --token $VERCEL_TOKEN
