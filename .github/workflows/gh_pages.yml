@@ -69,7 +69,7 @@ jobs:
       - name: Install packages
         run: npm install
       - name: Build
-        run: npm run build -- --url-base=/news/
+        run: npm run build --url-base=/news/
       - name: Copy Static Assets
         run: |
           cp -r ./assets/ ./dist
