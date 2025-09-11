@@ -44,6 +44,7 @@ jobs:
           cp -r ./assets/ ./dist
       - name: Fix links
         run: |
+          find ./dist -type f -name '*.html' -exec sed -i 's/href=`\/dist/href=`/g' {} \;
           find ./dist -type f -name '*.html' -exec sed -i 's/href="\/dist/href="/g' {} \;
           find ./dist -type f -name '*.html' -exec sed -i 's/src="\/dist/src="/g' {} \;
       - name: Deploy to Cloudflare Pages
@@ -76,6 +77,7 @@ jobs:
         run: |
           find ./dist -type f -name '*.html' -exec sed -i 's/href="\/assets/href="\/news\/assets/g' {} \;
           find ./dist -type f -name '*.html' -exec sed -i 's/src="\/assets/src="\/news\/assets/g' {} \;
+          find ./dist -type f -name '*.html' -exec sed -i 's/href=`\/dist/href=`\/news/g' {} \;
           find ./dist -type f -name '*.html' -exec sed -i 's/href="\/dist/href="\/news/g' {} \;
           find ./dist -type f -name '*.html' -exec sed -i 's/src="\/dist/src="\/news/g' {} \;
       - name: Deploy to Vercel
